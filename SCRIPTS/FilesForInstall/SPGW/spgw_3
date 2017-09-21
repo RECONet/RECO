@@ -1,0 +1,4 @@
+";               # STRING, CIDR, YOUR NETWORK CONFIG HERE
+
+        # S-GW binded interface for S1-U communication (GTPV1-U) can be ethernet interface, virtual ethernet interface, we don't advise wireless interfaces
+        SGW_INTERFACE_NAME_FOR_S1U_S12_S4_UP    = "

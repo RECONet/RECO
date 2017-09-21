@@ -1,0 +1,2 @@
+";                         # STRING, interface name, YOUR NETWORK CONFIG HERE, USE "lo" if S-GW run on eNB host
+        SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP      = "

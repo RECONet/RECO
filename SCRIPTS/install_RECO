@@ -1,0 +1,432 @@
+#!/bin/bash
+
+# Set log colors
+YL='\033[1;33m'
+NC='\033[0m'
+
+
+
+# Install MME
+if [ "$1" = "MME" ] || [ "$1" = "mme" ]; then
+	echo -e "${YL}[RECO] Install MME"
+
+# Configure NICs and IPs
+echo -e "${YL}[RECO] Configure NICs and IPs${NC}"
+echo " "
+echo " "
+echo " "
+echo -e "${YL}For the connection to eNB${NC}"
+echo -e "${NC}NIC name of MME: "
+read to_eNB_name
+echo "IP address of MME (with mask): "
+read to_eNB_IP
+echo " "
+echo " "
+echo " "
+echo -e "${YL}For the connection to SPGW${NC}"
+echo -e "${NC}NIC name of MME: "
+read to_SPGW_name
+echo "IP address of MME (with mask): "
+read to_SPGW_IP
+echo "IP address of SPGW (with mask): "
+read SPGW_IP
+echo " "
+echo " "
+echo " "
+echo -e "${YL}For the connection to HSS${NC}"
+echo -e "${NC}IP address of HSS (without mask): "
+read HSS_IP
+echo " "
+echo " "
+echo " "
+echo -e "${YL}[RECO] End of configuring process${NC}"
+
+# Update application tools
+echo -e "${YL}[RECO] Update application tools${NC}"
+apt-get update -y
+apt-get upgrade -y
+echo -e "${YL}[RECO] End of updating process${NC}"
+
+# Install tools and libraries
+echo -e "${YL}[RECO] Install tools and libraries${NC}"
+./build_hss -i -F
+./build_mme -i -f
+apt-get install subversion git -y
+apt-get install python-tk -y
+apt-get install libmnl-dev -y
+git -C ../../ clone git://git.osmocom.org/libgtpnl
+autoreconf -fi ../../libgtpnl/
+pushd $(cd ../../ && pwd)/libgtpnl
+./configure
+make
+make install
+popd
+echo -e "${YL}[RECO] End of installing process"
+
+# Copy configuration files
+echo -e "${YL}[RECO] Copy configuration files${NC}"
+cp ../ETC/mme.conf /usr/local/etc/oai
+cp ../ETC/mme_fd.conf /usr/local/etc/oai/freeDiameter
+chmod 777 /usr/local/etc/oai/mme.conf
+chmod 777 /usr/local/etc/oai/freeDiameter/mme_fd.conf
+echo -e "${YL}[RECO] End of copying process${NC}"
+
+# Set files
+echo -e "${YL}[RECO] Set files${NC}"
+hostnamectl set-hostname ubuntu
+cat /etc/hosts > hosts.tmp
+echo "127.0.1.1 ubuntu.openair4G.eur ubuntu" > /etc/hosts
+echo "127.0.0.1 hss.openair4G.eur hss" >> /etc/hosts
+cat hosts.tmp >> /etc/hosts
+rm hosts.tmp
+cat ./FilesForInstall/MME/mme_fd_1 > mme_fd.tmp
+head -c -1 mme_fd.tmp > mme_fd.ttmp
+mv mme_fd.ttmp mme_fd.tmp
+echo "$HSS_IP" >> mme_fd.tmp
+head -c -1 mme_fd.tmp > mme_fd.ttmp
+mv mme_fd.ttmp mme_fd.tmp
+cat ./FilesForInstall/MME/mme_fd_2 >> mme_fd.tmp
+cat mme_fd.tmp > /usr/local/etc/oai/freeDiameter/mme_fd.conf
+rm mme_fd.tmp
+rm mme_fd.ttmp
+cat ./FilesForInstall/MME/mme_1 > mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$to_eNB_name" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_2 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$to_eNB_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_3 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$to_SPGW_name" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_4 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$to_SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_5 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_6 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_7 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_8 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_9 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_10 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_11 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_12 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_13 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_14 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_15 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_16 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_17 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_18 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_19 >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+echo "$SPGW_IP" >> mme.tmp
+head -c -1 mme.tmp > mme.ttmp
+mv mme.ttmp mme.tmp
+cat ./FilesForInstall/MME/mme_20 >> mme.tmp
+cat mme.tmp > ../ETC/mme.conf
+rm mme.tmp
+rm mme.ttmp
+echo -e "${YL}[RECO] End of setting process${NC}"
+
+# Compile the MME
+echo -e "${YL}[RECO] Compile the MME${NC}"
+./build_mme -c
+echo -e "${YL}[RECO] End of compiling process${NC}"
+
+# Check the certification
+echo -e "${YL}[RECO] Check the certification${NC}"
+./check_mme_s6a_certificate /usr/local/etc/oai/freeDiameter/ ubuntu.openair4G.eur
+echo -e "${YL}[RECO] End of checking process${NC}"
+
+
+
+echo -e "${YL}[RECO] End of installing MME process${NC}"
+# Install MME end
+
+
+
+# Install HSS
+elif [ "$1" = "HSS" ] || [ "$1" = "hss" ]; then
+	echo -e "${YL}[RECO] Install HSS"
+
+# Configure database
+echo -e "${YL}[RECO] Configure database${NC}"
+echo " "
+echo " "
+echo " "
+echo -e "${YL}For MySQL database${NC}"
+echo -e "${NC}Password: "
+read pass
+echo -e "${YL}[RECO] End of configuring process${NC}"
+
+# Update application tools
+echo -e "${YL}[RECO] Update application tools${NC}"
+apt-get update -y
+apt-get upgrade -y
+echo -e "${YL}[RECO] End of updating process${NC}"
+
+# Install tools and libraries
+echo -e "${YL}[RECO] Install tools and libraries${NC}"
+./build_hss -i -F
+apt-get install phpmyadmin -y
+ln -s /etc/phpmyadmin/apache.conf /etc/apache2/conf-available/phpmyadmin.conf
+a2enconf phpmyadmin
+/etc/init.d/apache2 reload
+echo -e "${YL}[RECO] End of installing process${NC}"
+
+# Copy configuration files
+echo -e "${YL}[RECO] Copy configuration files${NC}"
+cp ../ETC/hss.conf /usr/local/etc/oai
+cp ../ETC/hss_fd.conf /usr/local/etc/oai/freeDiameter
+cp ../ETC/acl.conf /usr/local/etc/oai/freeDiameter
+chmod 777 /usr/local/etc/oai/hss.conf
+chmod 777 /usr/local/etc/oai/freeDiameter/hss_fd.conf
+chmod 777 /usr/local/etc/oai/freeDiameter/acl.conf
+echo -e "${YL}[RECO] End of copying process${NC}"
+
+# Set files
+echo -e "${YL}[RECO] Set files${NC}"
+hostnamectl set-hostname ubuntu
+cat /etc/hosts > hosts.tmp
+echo "127.0.1.1 ubuntu.openair4G.eur ubuntu" > /etc/hosts
+echo "127.0.0.1 hss.openair4G.eur hss" >> /etc/hosts
+cat hosts.tmp >> /etc/hosts
+rm hosts.tmp
+cat ./FilesForInstall/HSS/hss_1 > hss.tmp
+head -c -1 hss.tmp > hss.ttmp
+mv hss.ttmp hss.tmp
+echo "$pass" >> hss.tmp
+head -c -1 hss.tmp > hss.ttmp
+mv hss.ttmp hss.tmp
+cat ./FilesForInstall/HSS/hss_2 >> hss.tmp
+cat hss.tmp > /usr/local/etc/oai/hss.conf
+rm hss.tmp
+rm hss.ttmp
+echo -e "${YL}[RECO] End of setting process${NC}"
+
+# Import database
+echo -e "${YL}[RECO] Import database${NC}"
+mysql -u root --password=$pass --init-command="CREATE DATABASE oai_db; exit;"
+mysql -u root --password=$pass oai_db <$(cd .. && pwd)/SRC/OAI_HSS/db/oai_db.sql
+mysql -u root --password=$pass <$(pwd)/FilesForInstall/HSS/ss.sql
+echo -e "${YL}[RECO] End of importing process${NC}"
+
+# Check the certification
+echo -e "${YL}[RECO] Check the certification${NC}"
+./check_hss_s6a_certificate /usr/local/etc/oai/freeDiameter/ hss.openair4G.eur
+echo -e "${YL}[RECO] End of checking process${NC}"
+
+# Compile the HSS
+echo -e "${YL}[RECO] Compile the HSS${NC}"
+./build_hss -c
+echo -e "${YL}[RECO] End of compiling process${NC}"
+
+
+
+echo -e "${YL}[RECO] End of installing HSS process${NC}"
+# Install HSS end
+
+
+
+# Install SPGW
+elif [ "$1" = "SPGW" ] || [ "$1" = "spgw" ]; then
+	echo -e "${YL}[RECO] Install SPGW${NC}"
+
+# Configure NICs and IPs
+echo -e "${YL}[RECO] Configure NICs and IPs${NC}"
+echo " "
+echo " "
+echo " "
+echo -e "${YL}For the connection to MME${NC}"
+echo -e "${NC}NIC name of SPGW: "
+read to_MME_name
+echo "IP address of SPGW (with mask): "
+read to_MME_IP
+echo " "
+echo " "
+echo " "
+echo -e "${YL}For the connection to eNB${NC}"
+echo -e "${NC}NIC name of SPGW: "
+read to_eNB_name
+echo "IP address of SPGW (with mask): "
+read to_eNB_IP
+echo " "
+echo " "
+echo " "
+echo -e "${YL}For the connection to Internet${NC}"
+echo -e "${NC}NIC name of SPGW: "
+read to_Internet_name
+echo " "
+echo " "
+echo " "
+echo -e "${YL}For UE${NC}"
+echo -e "${NC}IP address of UE (with mask): "
+read UE_IP
+echo " "
+echo " "
+echo " "
+echo -e "${YL}[RECO] End of configuring process${NC}"
+
+# Update application tools
+echo -e "${YL}[RECO] Update application tools${NC}"
+apt-get update -y
+apt-get upgrade -y
+echo -e "${YL}[RECO] End of updating process${NC}"
+
+# Install tools and libraries
+echo -e "${YL}[RECO] Install tools and libraries${NC}"
+./build_hss -i -F
+./build_mme -i -f
+./build_spgw -i -f
+echo -e "${YL}[RECO] End of installing process"
+
+# Copy configuration files
+echo -e "${YL}[RECO] Copy configuration files${NC}"
+cp ../ETC/spgw.conf /usr/local/etc/oai
+chmod 777 /usr/local/etc/oai/spgw.conf
+echo -e "${YL}[RECO] End of copying process${NC}"
+
+# Set files
+echo -e "${YL}[RECO] Set files${NC}"
+cat ./FilesForInstall/SPGW/spgw_1 > spgw.tmp
+head -c -1 spgw.tmp > spgw.ttmp
+mv spgw.ttmp spgw.tmp
+echo "$to_MME_name" >> spgw.tmp
+head -c -1 spgw.tmp > spgw.ttmp
+mv spgw.ttmp spgw.tmp
+cat ./FilesForInstall/SPGW/spgw_2 >> spgw.tmp
+head -c -1 spgw.tmp > spgw.ttmp
+mv spgw.ttmp spgw.tmp
+echo "$to_MME_IP" >> spgw.tmp
+head -c -1 spgw.tmp > spgw.ttmp
+mv spgw.ttmp spgw.tmp
+cat ./FilesForInstall/SPGW/spgw_3 >> spgw.tmp
+head -c -1 spgw.tmp > spgw.ttmp
+mv spgw.ttmp spgw.tmp
+echo "$to_eNB_name" >> spgw.tmp
+head -c -1 spgw.tmp > spgw.ttmp
+mv spgw.ttmp spgw.tmp
+cat ./FilesForInstall/SPGW/spgw_4 >> spgw.tmp
+head -c -1 spgw.tmp > spgw.ttmp
+mv spgw.ttmp spgw.tmp
+echo "$to_eNB_IP" >> spgw.tmp
+head -c -1 spgw.tmp > spgw.ttmp
+mv spgw.ttmp spgw.tmp
+cat ./FilesForInstall/SPGW/spgw_5 >> spgw.tmp
+head -c -1 spgw.tmp > spgw.ttmp
+mv spgw.ttmp spgw.tmp
+echo "$to_Internet_name" >> spgw.tmp
+head -c -1 spgw.tmp > spgw.ttmp
+mv spgw.ttmp spgw.tmp
+cat ./FilesForInstall/SPGW/spgw_6 >> spgw.tmp
+head -c -1 spgw.tmp > spgw.ttmp
+mv spgw.ttmp spgw.tmp
+echo "$UE_IP" >> spgw.tmp
+head -c -1 spgw.tmp > spgw.ttmp
+mv spgw.ttmp spgw.tmp
+cat ./FilesForInstall/SPGW/spgw_7 >> spgw.tmp
+cat spgw.tmp > /usr/local/etc/oai/spgw.conf
+rm spgw.tmp
+rm spgw.ttmp
+echo -e "${YL}[RECO] End of setting process${NC}"
+
+# Compile the SPGW
+echo -e "${YL}[RECO] Compile the SPGW${NC}"
+./build_spgw -c
+echo -e "${YL}[RECO] End of compiling process${NC}"
+
+
+
+echo -e "${YL}[RECO] End of installing SPGW process${NC}"
+# Install SPGW end
+
+
+
+# Default
+else
+	echo -e "${YL}[RECO] Which entity do you want to install?"
+	echo -e "${NC}      (Please keyin it as the input variable)"
+fi
+# File end
+

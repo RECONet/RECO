@@ -1,0 +1,139 @@
+";}  
+    );
+
+####################################################################################################################
+#                                           MODULE  LIST
+#                   1. The list of modules to load while executing mme 
+#                   2. If you want to add your own module, make sure it is added to MOD_LIST
+#                   3. The sequence of the following list will be the sequence initalizing each module,
+#                      so becareful if the sequence of the initialization matters.
+####################################################################################################################
+
+
+    MOD_LIST :
+    {
+        MODNAME = [ "MME_APP" , "NAS" , "S11_MME" , "S1AP" , "S6A" ];
+    };
+
+};
+
+
+####################################################################################################################
+#                                           MODULE  CONFIGURATION
+#                   1. The configuration settings for each module should be delcared here
+#                   2. If you want to add your own module, add the configuration settings for it below
+#                   3. Make sure all modules were added to MOD_LIST
+####################################################################################################################
+
+
+# ------- MME_APP definitions
+MME_APP :
+{
+    # No configuration 
+};
+
+
+# ------- NAS definitions
+NAS :
+{
+    # 3GPP TS 33.401 section 7.2.4.3 Procedures for NAS algorithm selection
+    # decreasing preference goes from left to right
+    ORDERED_SUPPORTED_INTEGRITY_ALGORITHM_LIST = [ "EIA2" , "EIA1" , "EIA0" ];
+    ORDERED_SUPPORTED_CIPHERING_ALGORITHM_LIST = [ "EEA0" , "EEA1" , "EEA2" ];
+
+    # EMM TIMERS
+    # T3402 start:
+    # At attach failure and the attempt counter is equal to 5.
+    # At tracking area updating failure and the attempt counter is equal to 5.
+    # T3402 stop:
+    # ATTACH REQUEST sent, TRACKING AREA REQUEST sent.
+    # On expiry:
+    # Initiation of the attach procedure, if still required or TAU procedure
+    # attached for emergency bearer services.
+    T3402                                 =  12;                            # in minutes (default is 12 minutes)
+
+    # T3412 start:
+    # In EMM-REGISTERED, when EMM-CONNECTED mode is left.
+    # T3412 stop:
+    # When entering state EMM-DEREGISTERED or when entering EMM-CONNECTED mode.
+    # On expiry:
+    # Initiation of the periodic TAU procedure if the UE is not attached for
+    # emergency bearer services. Implicit detach from network if the UE is
+    # attached for emergency bearer services.
+    T3412                                 =  54;                            # in minutes (default is 54 minutes, network dependent)
+
+    # T3422 start: DETACH REQUEST sent
+    # T3422 stop: DETACH ACCEPT received
+    # ON THE 1st, 2nd, 3rd, 4th EXPIRY: Retransmission of DETACH REQUEST
+    T3422                                 =  6;                             # in seconds (default is 6s)
+
+    # T3450 start:
+    # ATTACH ACCEPT sent, TRACKING AREA UPDATE ACCEPT sent with GUTI, TRACKING AREA UPDATE ACCEPT sent with TMSI,
+    # GUTI REALLOCATION COMMAND sent
+    # T3450 stop:
+    # ATTACH COMPLETE received, TRACKING AREA UPDATE COMPLETE received, GUTI REALLOCATION COMPLETE received
+    # ON THE 1st, 2nd, 3rd, 4th EXPIRY: Retransmission of the same message type
+    T3450                                 =  6;                             # in seconds (default is 6s)
+
+    # T3460 start: AUTHENTICATION REQUEST sent, SECURITY MODE COMMAND sent
+    # T3460 stop:
+    # AUTHENTICATION RESPONSE received, AUTHENTICATION FAILURE received,
+    # SECURITY MODE COMPLETE received, SECURITY MODE REJECT received
+    # ON THE 1st, 2nd, 3rd, 4th EXPIRY: Retransmission of the same message type
+    T3460                                 =  6;                             # in seconds (default is 6s)
+    
+    # T3470 start: IDENTITY REQUEST sent
+    # T3470 stop: IDENTITY RESPONSE received
+    # ON THE 1st, 2nd, 3rd, 4th EXPIRY: Retransmission of IDENTITY REQUEST
+    T3470                                 =  6;                             # in seconds (default is 6s)
+
+    # ESM TIMERS
+    # T3485 start: ACTIVATE DEFAULT EPS BEARER CONTEXT REQUEST sent, ACTIVATE DEDICATED EPS BEARER CONTEXT REQUEST sent
+    # T3485 stop:  ACTIVATE DEFAULT EPS BEARER CONTEXT ACCEPT received or
+    #              ACTIVATE DEFAULT EPS BEARER CONTEXT REJECT received or
+    #              ACTIVATE DEDICATED EPS BEARER CONTEXT ACCEPT received or
+    #              ACTIVATE DEDICATED EPS BEARER CONTEXT REJECT received
+    # ON THE 1st, 2nd, 3rd, 4th EXPIRY: Retransmission of the same message
+    T3485                                 =  8;                             # in seconds (default is 8s)
+    
+    T3486                                 =  8;                             # UNUSED in seconds (default is 8s)
+    
+    # T3489 start: ESM INFORMATION REQUEST sent
+    # T3489 stop:  ESM INFORMATION RESPONSE received
+    # Retransmission of ESM INFORMATION REQUEST on 1st and 2nd expiry only
+    T3489                                 =  4;                             # in seconds (default is 4s)
+    
+    T3495                                 =  8;                             # UNUSED in seconds (default is 8s)
+    
+    # NON STANDARD FEATURES
+    # Reject Tracking Area Update
+    FORCE_REJECT_TAU                      = "yes";                          # Leave it at "yes" (TAU TODO)
+    # Reject Service Request
+    FORCE_REJECT_SR                       = "yes";                          # Leave it at "yes" (SR TODO)
+    DISABLE_ESM_INFORMATION_PROCEDURE     = "yes";                          #
+};
+
+
+# ------- S11_MME definitions
+S11_MME :
+{
+    # No configuration 
+};
+
+
+# ------- S1AP definitions
+S1AP :
+{
+    # outcome drop timer value (seconds)
+    S1AP_OUTCOME_TIMER = 10;
+};
+
+
+# ------- S6A definitions
+S6A :
+{
+    S6A_CONF                   = "/usr/local/etc/oai/freeDiameter/mme_fd.conf"; # YOUR MME freeDiameter config file path
+    HSS_HOSTNAME               = "hss";                                     # THE HSS HOSTNAME
+};
+
+

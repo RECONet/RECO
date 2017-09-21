@@ -1,0 +1,52 @@
+";              # STRING, CIDR, YOUR NETWORK CONFIG HERE
+        SGW_IPV4_PORT_FOR_S1U_S12_S4_UP         = 2152;                         # INTEGER, port number, PREFER NOT CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING
+
+        # S-GW binded interface for S5 or S8 communication, not implemented, so leave it to none
+        SGW_INTERFACE_NAME_FOR_S5_S8_UP         = "none";                       # STRING, interface name, DO NOT CHANGE (NOT IMPLEMENTED YET)
+        SGW_IPV4_ADDRESS_FOR_S5_S8_UP           = "0.0.0.0/24";                 # STRING, CIDR, DO NOT CHANGE (NOT IMPLEMENTED YET)
+    };
+    
+    INTERTASK_INTERFACE :
+    {
+        # max queue size per task
+        ITTI_QUEUE_SIZE            = 2000000;                                   # INTEGER
+    };
+
+    LOGGING :
+    {
+        # OUTPUT choice in { "CONSOLE", "SYSLOG", `path to file`", "`IPv4@`:`TCP port num`"} 
+        # `path to file` must start with '.' or '/'
+        # if TCP stream choice, then you can easily dump the traffic on the remote or local host: nc -l `TCP port num` > received.txt
+        OUTPUT            = "CONSOLE";                                          # see 3 lines above 
+        #OUTPUT            = "SYSLOG";                                          # see 4 lines above 
+        #OUTPUT            = "/tmp/spgw.log";                                   # see 5 lines above 
+        #OUTPUT            = "127.0.0.1:5656";                                  # see 6 lines above 
+        
+        # THREAD_SAFE choice in { "yes", "no" } means use of thread safe intermediate buffer then a single thread pick each message log one
+        # by one to flush it to the chosen output
+        THREAD_SAFE       = "no";
+        
+        # COLOR choice in { "yes", "no" } means use of ANSI styling codes or no
+        COLOR              = "yes";
+        
+        # Log level choice in { "EMERGENCY", "ALERT", "CRITICAL", "ERROR", "WARNING", "NOTICE", "INFO", "DEBUG", "TRACE"} 
+        ASYNC_SYSTEM       = "TRACE";
+        UDP_LOG_LEVEL      = "TRACE";
+        GTPV1U_LOG_LEVEL   = "TRACE";
+        GTPV2C_LOG_LEVEL   = "TRACE";
+        SPGW_APP_LOG_LEVEL = "TRACE";
+        S11_LOG_LEVEL      = "TRACE";
+        UTIL_LOG_LEVEL     = "TRACE";
+        ITTI_LOG_LEVEL     = "WARNING";
+    };
+};
+
+P-GW = 
+{
+    NETWORK_INTERFACES : 
+    {
+        # P-GW binded interface for S5 or S8 communication, not implemented, so leave it to none
+        PGW_INTERFACE_NAME_FOR_S5_S8          = "none";                         # STRING, interface name, DO NOT CHANGE (NOT IMPLEMENTED YET)
+
+        # P-GW binded interface for SGI (egress/ingress internet traffic)
+        PGW_INTERFACE_NAME_FOR_SGI            = "
