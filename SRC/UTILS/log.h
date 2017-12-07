@@ -165,6 +165,7 @@ typedef enum {
   LOG_ITTI,
   LOG_ASYNC_SYSTEM,
   MAX_LOG_PROTOS,
+  LOG_LOCATION_UPDATE,
 } log_proto_t;
 
 /*! \struct  log_thread_ctxt_t

@@ -354,6 +354,7 @@ include_directories("${OPENAIRCN_DIR}/SRC/UTILS/MSC")
 include_directories("${OPENAIRCN_DIR}/SRC/UTILS/BSTR")
 include_directories("${OPENAIRCN_DIR}/SRC/SGW")
 include_directories("${OPENAIRCN_DIR}/SRC/MME_APP")
+include_directories("${OPENAIRCN_DIR}/SRC/LOCATION")
 include_directories("${OPENAIRCN_DIR}/SRC/S6A")
 include_directories("${OPENAIRCN_DIR}/SRC")
 ###############################################################################
@@ -604,6 +605,10 @@ add_library(HMB_MME_APP MODULE
   ${MME_DIR}/mme_app_transport.cpp
   ${MME_DIR}/mme_app_ue_context.cpp
   ${MME_DIR}/s6a_2_nas_cause.cpp
+  )
+set(LOCATION_DIR ${OPENAIRCN_DIR}/SRC/LOCATION)
+add_library(LOCATION MODULE
+  ${LOCATION_DIR}/location.cpp
   )
 set(NAS_SRC ${OPENAIRCN_DIR}/SRC/NAS/)
 set(libnas_api_OBJS
@@ -979,6 +984,14 @@ target_link_libraries (MME_APP
   pthread m sctp  rt crypt ${LFDS} ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} ${NETTLE_LIBRARIES} ${CONFIG_LIBRARIES} ${LIBXML2_LIBRARIES} gnutls fdproto fdcore
   )
 target_link_libraries (HMB_MME_APP
+  -Wl,--start-group
+    S1AP_LIB GTPV2C SCTP_SERVER UDP_SERVER SECU_CN 
+   ${MSC_LIB} ${ITTI_LIB} ${XML_MSG_DUMP_LIB} ${3GPP_TYPES_LIB} 
+   ${3GPP_TYPES_XML_LIB} CN_UTILS ${SCENARIO_PLAYER_LIB} HASHTABLE BSTR 
+  -Wl,--end-group
+  pthread m sctp  rt crypt ${LFDS} ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} ${NETTLE_LIBRARIES} ${CONFIG_LIBRARIES} ${LIBXML2_LIBRARIES} gnutls fdproto fdcore
+  )
+target_link_libraries (LOCATION
   -Wl,--start-group
     S1AP_LIB GTPV2C SCTP_SERVER UDP_SERVER SECU_CN 
    ${MSC_LIB} ${ITTI_LIB} ${XML_MSG_DUMP_LIB} ${3GPP_TYPES_LIB} 

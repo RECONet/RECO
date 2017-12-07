@@ -79,6 +79,7 @@ extern "C"{
 }
 
 #include "module.hpp"
+#include "location.hpp"
 
 // The list of modules to load while executing mme 
 // same list as the MOD_LIST in mme's cinfiguration file 
