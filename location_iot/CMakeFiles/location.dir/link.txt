@@ -1,0 +1,1 @@
+/usr/bin/c++    -w -std=c++11   CMakeFiles/location.dir/location.cpp.o CMakeFiles/location.dir/generated/location.pb.cc.o CMakeFiles/location.dir/generated/location.grpc.pb.cc.o  -o location  -L/usr/local/lib -rdynamic -lgrpc++_unsecure -lgrpc -lgpr /usr/local/lib/libprotobuf.so -Wl,-rpath,/usr/local/lib 

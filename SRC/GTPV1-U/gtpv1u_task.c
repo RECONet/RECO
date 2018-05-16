@@ -65,6 +65,45 @@
 
 extern sgw_app_t                               sgw_app;
 
+struct gtp1_header_short {	/*    Descriptions from 3GPP 29060 */
+	uint8_t flags;		/* 01 bitfield, with typical values */
+	/*    001..... Version: 1 */
+	/*    ...1.... Protocol Type: GTP=1, GTP'=0 */
+	/*    ....0... Spare = 0 */
+	/*    .....0.. Extension header flag: 0 */
+	/*    ......0. Sequence number flag: 0 */
+	/*    .......0 PN: N-PDU Number flag */
+	uint8_t type;		/* 02 Message type. T-PDU = 0xff */
+	uint16_t length;	/* 03 Length (of IP packet or signalling) */
+	uint32_t tei;		/* 05 - 08 Tunnel Endpoint ID */
+};
+
+struct gtp1_header_long {	/*    Descriptions from 3GPP 29060 */
+	uint8_t flags;		/* 01 bitfield, with typical values */
+	/*    001..... Version: 1 */
+	/*    ...1.... Protocol Type: GTP=1, GTP'=0 */
+	/*    ....0... Spare = 0 */
+	/*    .....0.. Extension header flag: 0 */
+	/*    ......1. Sequence number flag: 1 */
+	/*    .......0 PN: N-PDU Number flag */
+	uint8_t type;		/* 02 Message type. T-PDU = 0xff */
+	uint16_t length;	/* 03 Length (of IP packet or signalling) */
+	uint32_t tei;		/* 05 Tunnel Endpoint ID */
+	uint16_t seq;		/* 10 Sequence Number */
+	uint8_t npdu;		/* 11 N-PDU Number */
+	uint8_t next;		/* 12 Next extension header type. Empty = 0 */
+};
+
+struct gtp1_packet_short {
+	struct gtp1_header_short h;
+	uint8_t p[65536];
+} __attribute__ ((packed));
+
+struct gtp1_packet_long {
+	struct gtp1_header_long h;
+	uint8_t p[65536];
+} __attribute__ ((packed));
+
 
 static void *gtpv1u_thread (void *args);
 
@@ -81,25 +120,37 @@ static void  *gtpv1u_thread (void *args)
      * * * * If the queue is empty, this function will block till a
      * * * * message is sent to the task.
      */
-    MessageDef                             *received_message_p = NULL;
+    unsigned char buffer[8196];
+    struct sockaddr_in peer;
+    socklen_t peerlen;
+    int status;
+    peerlen = sizeof(peer);
+    status = recvfrom(gtpv1u_data->fd1u, buffer, sizeof(buffer), 0, (struct sockaddr*)&peer, &peerlen);
+    struct gtp1_header_short * pheader = (struct gtp1_header_short *)(buffer);  
+    struct gtp1_header_long * pheader_l = (struct gtp1_header_long *)(buffer);
 
-    itti_receive_msg (TASK_GTPV1_U, &received_message_p);
-    DevAssert (received_message_p != NULL);
+    /* Send Echo Response */
+    struct gtp1_packet_long packet;
+    unsigned int length = 12;
+    struct gtp1_header_long *gtp1_default = (struct gtp1_header_long *)&packet;
 
-    switch (ITTI_MSG_ID (received_message_p)) {
+    memset(gtp1_default, 0, sizeof(struct gtp1_header_long));
+    gtp1_default->flags = 0x32;	
+    gtp1_default->type = 2;
+    /* gtpie_tv1 function is not implemented */
+    
+    packet.h.length = htons(length - 8);
+    packet.h.seq = (pheader_l->seq);
+    /* packet.h.tei = htonl(pdp->teid_gn); TEI? */
 
-    case TERMINATE_MESSAGE:
-      gtpv1u_exit (gtpv1u_data);
-      break;
+    /* fill Recovery IE */
+    length += 2;
+    packet.h.length = htons(length - 8);
+    packet.p[0]=(uint8_t) 14;
+    packet.p[1]=0;
 
-    default:{
-        OAILOG_ERROR (LOG_GTPV1U , "Unkwnon message ID %d:%s\n", ITTI_MSG_ID (received_message_p), ITTI_MSG_NAME (received_message_p));
-      }
-      break;
-    }
+    sendto(gtpv1u_data->fd1u, &packet, length, 0, (struct sockaddr *)&peer, sizeof(struct sockaddr_in)) ;
 
-    itti_free (ITTI_MSG_ORIGIN_ID (received_message_p), received_message_p);
-    received_message_p = NULL;
   }
 
   return NULL;
@@ -121,7 +172,7 @@ int gtpv1u_init (spgw_config_t *spgw_config)
       int rv = system ("rmmod gtp");
       rv = system ("modprobe gtp");
       if (rv != 0) {
-        OAILOG_CRITICAL (TASK_GTPV1_U, "ERROR in loading gtp kernel module (check if built in kernel)\n");
+        //OAILOG_CRITICAL (TASK_GTPV1_U, "ERROR in loading gtp kernel module (check if built in kernel)\n");
         return -1;
       }
     }
@@ -149,21 +200,6 @@ int gtpv1u_init (spgw_config_t *spgw_config)
 //------------------------------------------------------------------------------
 void gtpv1u_exit (gtpv1u_data_t * const gtpv1u_data)
 {
-  // START-GTP quick integration only for evaluation purpose
-//  void * res = 0;
-//  int rv  = pthread_cancel(gtpv1u_data->reader_thread);
-//  if (rv != 0) {
-//    OAILOG_ERROR (LOG_GTPV1U , "gtp_decaps1u pthread_cancel");
-//  }
-//  rv = pthread_join(gtpv1u_data->reader_thread, &res);
-//  if (rv != 0)
-//    OAILOG_ERROR (LOG_GTPV1U , "gtp_decaps1u pthread_join");
-//
-//  if (res == PTHREAD_CANCELED) {
-//    OAILOG_DEBUG (LOG_GTPV1U , "gtp_decaps1u thread was canceled\n");
-//  } else {
-//    OAILOG_ERROR (LOG_GTPV1U , "gtp_decaps1u thread wasn't canceled\n");
-//  }
 
   if (spgw_config.pgw_config.use_gtp_kernel_module) {
     gtp_mod_kernel_stop();
