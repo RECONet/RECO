@@ -37,6 +37,7 @@
 #include "s6a_config.h"
 
 #include "s6a_up_loc.hpp"
+#include "location.hpp"
 
 int
 s6a_up_loc::s6a_ula_cb(
@@ -169,7 +170,8 @@ s6a_up_loc::s6a_ula_cb(
 
 err:
   ans_p = NULL;
-  itti_send_msg_to_task(TASK_LOCATION_UPDATE, INSTANCE_DEFAULT, message_p);
+  //itti_send_msg_to_task(TASK_LOCATION_UPDATE, INSTANCE_DEFAULT, message_p);
+  handle_s6a_update_location_ans(s6a_update_location_ans_p);
   OAILOG_DEBUG(LOG_S6A, "Sending S6A_UPDATE_LOCATION_ANS to task MME_APP\n");
   return RETURNok;
   }

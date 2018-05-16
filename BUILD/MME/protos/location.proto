@@ -1,0 +1,91 @@
+syntax = "proto3";
+package location;
+
+service LocationUpdate {
+    rpc Location_update(Request) returns (Reply) {}
+}
+
+message Request {
+    string imsi = 1;
+    uint32 mcc_digit1 = 2;
+    uint32 mcc_digit2 = 3;
+    uint32 mcc_digit3 = 4;
+    uint32 mnc_digit1 = 5;
+    uint32 mnc_digit2 = 6;
+    uint32 mnc_digit3 = 7;
+}
+
+message Reply {
+    uint32 present = 1;
+    enum Base {
+	DIAMETER_SUCCESS = 0;
+    }
+    Base base = 2;
+    string imsi = 3;
+    
+    enum subscriber_status_t {
+	SS_SERVICE_GRANTED = 0;
+  	SS_OPERATOR_DETERMINED_BARRING = 1;
+  	SS_MAX = 2;
+    }
+    subscriber_status_t subscriber_status = 4;
+    uint32 access_restriction = 5;
+    
+    message ambr_t {
+	uint64 br_ul = 1;
+	uint64 br_dl = 2; 
+    }
+    ambr_t  subscribed_ambr = 6;
+    bytes  msisdn = 7;
+    uint32 msisdn_length = 8;
+    uint32 rau_tau_timer = 9;
+    
+    enum access_mode_t {
+	NAM_PACKET_AND_CIRCUIT = 0;
+  	NAM_RESERVED           = 1;
+  	NAM_ONLY_PACKET        = 2;
+        NAM_MAX		       = 3;
+    }
+    access_mode_t access_mode = 10;
+    uint32 context_identifier = 11;
+    
+    enum all_apn_conf_ind_t {
+    	ALL_APN_CONFIGURATIONS_INCLUDED = 0;
+  	MODIFIED_ADDED_APN_CONFIGURATIONS_INCLUDED = 1;
+  	ALL_APN_MAX = 2;
+    }
+    all_apn_conf_ind_t all_apn_conf_ind = 12;
+    uint32 nb_apns = 13;
+    uint32 apn_context_identifier = 14;
+    uint32 nb_ip_address = 15;
+		
+    enum pdn_type_t {
+	IPv4 = 0;
+       	IPv6 = 1;
+        IPv4_AND_v6 = 2;
+        IPv4_OR_v6 = 3;
+        IP_MAX = 4;
+    }
+    pdn_type_t pdn_type = 16;
+    string service_selection = 17;
+    int32 service_selection_length = 18;
+    uint32 qci = 19;
+    uint32 priority_level = 20;
+
+    enum pre_emption_vulnerability_t {
+        _PRE_EMPTION_VULNERABILITY_ENABLED  = 0;
+        _PRE_EMPTION_VULNERABILITY_DISABLED = 1;
+        _PRE_EMPTION_VULNERABILITY_MAX = 2;
+    } 
+    pre_emption_vulnerability_t pre_emp_vulnerability = 21;
+
+    enum pre_emption_capability_t {
+        _PRE_EMPTION_CAPABILITY_ENABLED  = 0;
+        _PRE_EMPTION_CAPABILITY_DISABLED = 1;
+        _PRE_EMPTION_CAPABILITY_MAX = 2;
+    }
+    pre_emption_capability_t    pre_emp_capability = 22;
+    ambr_t ambr = 23;
+
+}
+

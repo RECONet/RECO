@@ -127,7 +127,7 @@ else (CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l")
 endif()
 #
 set(CMAKE_C_FLAGS
-  "${CMAKE_C_FLAGS} ${C_FLAGS_PROCESSOR} -std=gnu99 -Wall -Wstrict-prototypes -fno-strict-aliasing -rdynamic -funroll-loops -Wno-packed-bitfield-compat -fPIC ")
+  "${CMAKE_C_FLAGS} ${C_FLAGS_PROCESSOR} -std=gnu99 -Wall -Wstrict-prototypes -fno-strict-aliasing -rdynamic -funroll-loops -Wno-packed-bitfield-compat -fPIC -g")
 # add autoTOOLS definitions that were maybe used!
 set(CMAKE_C_FLAGS
   "${CMAKE_C_FLAGS} -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_FCNTL_H=1 -DHAVE_ARPA_INET_H=1 -DHAVE_SYS_TIME_H=1 -DHAVE_SYS_SOCKET_H=1 -DHAVE_STRERROR=1 -DHAVE_SOCKET=1 -DHAVE_MEMSET=1 -DHAVE_GETTIMEOFDAY=1 -DHAVE_STDLIB_H=1 -DHAVE_MALLOC=1"
@@ -143,7 +143,47 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g  -DDEBUG_IS_ON=1 -DTRACE_IS_ON=
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS} -g -DMALLOC_CHECK_=3  -DDEBUG_IS_ON -O1")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS} -g  -DDEBUG_IS_ON -O1")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w" )  # disable warning messages for temporary debugging usage
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -std=c++11" )  # disable warning messages for temporary debugging usage
+################################################################
+# gRPC
+################################################################
+find_package(Protobuf REQUIRED)
+
+include_directories(/usr/local/include)
+link_directories(/usr/local/lib)
+
+set(PROTO_PATH "${CMAKE_SOURCE_DIR}/protos")
+set(LOCATION_PROTO "${PROTO_PATH}/location.proto")
+set(GENERATED_PROTOBUF_PATH "${CMAKE_BINARY_DIR}/generated")
+file(MAKE_DIRECTORY ${GENERATED_PROTOBUF_PATH})
+message("CMAKE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:${PROTO_PATH}")
+
+set(LOCATION_PB_CPP_FILE "${GENERATED_PROTOBUF_PATH}/location.pb.cc")
+set(LOCATION_PB_H_FILE "${GENERATED_PROTOBUF_PATH}/location.pb.h")
+set(LOCATION_GRPC_PB_CPP_FILE "${GENERATED_PROTOBUF_PATH}/location.grpc.pb.cc")
+set(LOCATION_GRPC_PB_H_FILE "${GENERATED_PROTOBUF_PATH}/location.grpc.pb.h")
+add_custom_command(
+    OUTPUT "${LOCATION_PB_H_FILE}"
+           "${LOCATION_PB_CPP_FILE}"
+           "${LOCATION_GRPC_PB_H_FILE}"
+           "${LOCATION_GRPC_PB_CPP_FILE}"
+    COMMAND ${PROTOBUF_PROTOC_EXECUTABLE}
+    ARGS "--proto_path=${PROTO_PATH}"
+         "--cpp_out=${GENERATED_PROTOBUF_PATH}"
+         "${LOCATION_PROTO}"
+    COMMAND ${PROTOBUF_PROTOC_EXECUTABLE}
+    ARGS "--proto_path=${PROTO_PATH}"
+         "--grpc_out=${GENERATED_PROTOBUF_PATH}"
+         "--plugin=protoc-gen-grpc=/usr/local/bin/grpc_cpp_plugin"
+         "${LOCATION_PROTO}"
+    )
+set(GENERATED_PROTOBUF_FILES ${LOCATION_PB_H_FILE} ${LOCATION_PB_CPP_FILE}
+    ${LOCATION_GRPC_PB_H_FILE} ${LOCATION_GRPC_PB_CPP_FILE})
+
+include_directories(${GENERATED_PROTOBUF_PATH})
+link_libraries(grpc++_unsecure grpc gpr ${PROTOBUF_LIBRARY})
+
+
 ################################################################
 # Git Version 
 ################################################################
@@ -316,6 +356,7 @@ add_library(S1AP MODULE
   ${S1AP_DIR}/s1ap_mme_ta.cpp
   ${S1AP_DIR}/s1ap.cpp
   ${S1AP_DIR}/s1ap_config.cpp
+  #${S1AP_DIR}/helloworld.cpp
   )
 
 ###############################################################################
@@ -354,7 +395,6 @@ include_directories("${OPENAIRCN_DIR}/SRC/UTILS/MSC")
 include_directories("${OPENAIRCN_DIR}/SRC/UTILS/BSTR")
 include_directories("${OPENAIRCN_DIR}/SRC/SGW")
 include_directories("${OPENAIRCN_DIR}/SRC/MME_APP")
-include_directories("${OPENAIRCN_DIR}/SRC/LOCATION")
 include_directories("${OPENAIRCN_DIR}/SRC/S6A")
 include_directories("${OPENAIRCN_DIR}/SRC")
 ###############################################################################
@@ -583,6 +623,7 @@ add_library(MME_APP MODULE
   ${MME_DIR}/mme_app_transport.cpp
   ${MME_DIR}/mme_app_ue_context.cpp
   ${MME_DIR}/s6a_2_nas_cause.cpp
+  ${MME_DIR}/call_gui.cpp
   )
 add_library(HMB_MME_APP MODULE
   ${MME_DIR}/mme_app.cpp
@@ -606,10 +647,7 @@ add_library(HMB_MME_APP MODULE
   ${MME_DIR}/mme_app_ue_context.cpp
   ${MME_DIR}/s6a_2_nas_cause.cpp
   )
-set(LOCATION_DIR ${OPENAIRCN_DIR}/SRC/LOCATION)
-add_library(LOCATION MODULE
-  ${LOCATION_DIR}/location.cpp
-  )
+
 set(NAS_SRC ${OPENAIRCN_DIR}/SRC/NAS/)
 set(libnas_api_OBJS
   ${NAS_SRC}API/NETWORK/nas_message.cpp
@@ -850,6 +888,12 @@ include_directories(${CONFIG_INCLUDE_DIRS})
 pkg_search_module(CRYPTO libcrypto REQUIRED)
 include_directories(${CRYPTO_INCLUDE_DIRS})
 pkg_search_module(NETTLE nettle)
+
+#####
+pkg_search_module(GTKMM REQUIRED gtkmm-3.0)
+include_directories(${GTKMM_INCLUDE_DIRS})
+#####
+
 if(NOT ${NETTLE_FOUND})
   message("PACKAGE nettle not found: some targets will fail")
 else()
@@ -897,6 +941,7 @@ add_executable(mme
   ${OPENAIRCN_DIR}/SRC/COMMON/common_types.c
   ${OPENAIRCN_DIR}/SRC/COMMON/itti_free_defined_msg.c
   ${OPENAIRCN_DIR}/SRC/COMMON/itti_comp.c
+  ${GENERATED_PROTOBUF_FILES}
   )
   
 if( ITTI_ANALYZER )
@@ -909,7 +954,7 @@ target_link_libraries (mme
    ${MSC_LIB} ${ITTI_LIB} ${XML_MSG_DUMP_LIB} ${3GPP_TYPES_LIB} 
    ${3GPP_TYPES_XML_LIB} CN_UTILS ${SCENARIO_PLAYER_LIB} HASHTABLE BSTR 
   -Wl,--end-group
-  pthread m sctp  rt crypt ${LFDS} ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} ${NETTLE_LIBRARIES} ${CONFIG_LIBRARIES} ${LIBXML2_LIBRARIES} gnutls fdproto fdcore
+  pthread m sctp  rt crypt ${LFDS} ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} ${NETTLE_LIBRARIES} ${CONFIG_LIBRARIES} ${LIBXML2_LIBRARIES} gnutls fdproto fdcore ${GTKMM_LIBRARIES}
   )
 target_link_libraries (S6A
   -Wl,--start-group
@@ -974,6 +1019,7 @@ target_link_libraries (S1AP
    ${3GPP_TYPES_XML_LIB} CN_UTILS ${SCENARIO_PLAYER_LIB} HASHTABLE BSTR 
   -Wl,--end-group
   pthread m sctp  rt crypt ${LFDS} ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} ${NETTLE_LIBRARIES} ${CONFIG_LIBRARIES} ${LIBXML2_LIBRARIES} gnutls fdproto fdcore
+  ${GTKMM_LIBRARIES}
   )
 target_link_libraries (MME_APP
   -Wl,--start-group
@@ -984,14 +1030,6 @@ target_link_libraries (MME_APP
   pthread m sctp  rt crypt ${LFDS} ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} ${NETTLE_LIBRARIES} ${CONFIG_LIBRARIES} ${LIBXML2_LIBRARIES} gnutls fdproto fdcore
   )
 target_link_libraries (HMB_MME_APP
-  -Wl,--start-group
-    S1AP_LIB GTPV2C SCTP_SERVER UDP_SERVER SECU_CN 
-   ${MSC_LIB} ${ITTI_LIB} ${XML_MSG_DUMP_LIB} ${3GPP_TYPES_LIB} 
-   ${3GPP_TYPES_XML_LIB} CN_UTILS ${SCENARIO_PLAYER_LIB} HASHTABLE BSTR 
-  -Wl,--end-group
-  pthread m sctp  rt crypt ${LFDS} ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} ${NETTLE_LIBRARIES} ${CONFIG_LIBRARIES} ${LIBXML2_LIBRARIES} gnutls fdproto fdcore
-  )
-target_link_libraries (LOCATION
   -Wl,--start-group
     S1AP_LIB GTPV2C SCTP_SERVER UDP_SERVER SECU_CN 
    ${MSC_LIB} ${ITTI_LIB} ${XML_MSG_DUMP_LIB} ${3GPP_TYPES_LIB} 

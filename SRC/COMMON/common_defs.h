@@ -46,7 +46,7 @@
 
 
 #define PARENT_STRUCT(cOnTaiNeD, TyPe, MeMBeR) ({                      \
-        const typeof( ((TyPe *)0)->MeMBeR ) *__MemBeR_ptr = (cOnTaiNeD);    \
+        const decltype( ((TyPe *)0)->MeMBeR ) *__MemBeR_ptr = (cOnTaiNeD);    \
         (TyPe *)( (char *)__MemBeR_ptr - OFFSET_OF(TyPe,MeMBeR) );})
 
 

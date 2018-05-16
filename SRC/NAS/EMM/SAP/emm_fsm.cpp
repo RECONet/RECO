@@ -58,6 +58,7 @@
 #include "assertions.h"
 #include "msc.h"
 #include "mme_app_defs.h"
+#include "mme_time.h"
 
 /****************************************************************************/
 /****************  E X T E R N A L    D E F I N I T I O N S  ****************/
@@ -206,6 +207,8 @@ emm_fsm_set_state (
       OAILOG_INFO (LOG_NAS_EMM, "UE " MME_UE_S1AP_ID_FMT" EMM-FSM   - Status changed: %s ===> %s\n", ue_id, _emm_fsm_status_str[emm_context->_emm_fsm_state], _emm_fsm_status_str[state]);
       MSC_LOG_EVENT (MSC_NAS_EMM_MME, "EMM state %s UE " MME_UE_S1AP_ID_FMT" ", _emm_fsm_status_str[state], ue_id);
       emm_context->_emm_fsm_state = state;
+	
+      //if (state == EMM_REGISTERED) PRINT_TIME
     }
 
     OAILOG_FUNC_RETURN (LOG_NAS_EMM, RETURNok);

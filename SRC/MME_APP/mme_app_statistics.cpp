@@ -32,7 +32,7 @@
 #include "mme_app_ue_context.hpp"
 #include "mme_app_defs.h"
 #include "mme_app_statistics.h"
-
+#include "mme_time.h"
 
 int
 mme_app_statistics_display (
@@ -44,5 +44,6 @@ mme_app_statistics_display (
   OAILOG_DEBUG (LOG_MME_APP, "Bearers | %10u |     %10u     |\n", mme_app_desc.mme_ue_contexts.nb_bearers_managed, mme_app_desc.mme_ue_contexts.nb_bearers_since_last_stat);
   mme_app_desc.mme_ue_contexts.nb_ue_since_last_stat = 0;
   mme_app_desc.mme_ue_contexts.nb_bearers_since_last_stat = 0;
+  //SHOW_TIME
   return 0;
 }

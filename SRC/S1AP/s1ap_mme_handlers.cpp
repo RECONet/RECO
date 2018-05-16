@@ -495,6 +495,7 @@ int s1ap_mme_cxx::s1ap_generate_s1_setup_response (
    * Non-UE signalling -> stream 0
    */
   bstring b = blk2bstr(buffer, length);
+
   rc = s1ap_mme_itti_send_sctp_request (&b, enb_association->sctp_assoc_id, 0, INVALID_MME_UE_S1AP_ID);
   OAILOG_FUNC_RETURN (LOG_S1AP, rc);
 }

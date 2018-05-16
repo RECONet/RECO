@@ -35,9 +35,6 @@ S1AP = '\
     S1AP_OUTCOME_TIMER = 10; \n\
 };\n\n\n'
 
-LOCATION = '\
-{\n\
-};\n\n\n'
 
 S6A = '\
 {\n\
@@ -46,9 +43,8 @@ S6A = '\
 };'
 
 
-
 # list of customized modules' configuration settings
-mod_conf = [MME_APP, NAS, S11_MME, S1AP, LOCATION, S6A]
+mod_conf = [MME_APP, NAS, S11_MME, S1AP, S6A]
 
 
 # MME configuration file from
@@ -61,14 +57,14 @@ def print_mod_list():
 	wfd.write("    MOD_LIST : \n")
 	wfd.write("    {\n")
 	wfd.write("        MODNAME = [ ")
-	for i in range(0,18,3):
+	for i in range(0,15,3):
 		if var[i] != -1 and var[i].get() == 1:
 			wfd.write('"'+modules[i]+'"')
 		if var[i+1] != -1 and var[i+1].get() == 1:
 			wfd.write('"'+modules[i+1]+'"')
 		if var[i+2] != -1 and var[i+2].get() == 1:
 			wfd.write('"'+modules[i+2]+'"')
-		if i != 15:
+		if i != 12:
 			wfd.write(', ')
 	wfd.write(" ];\n")
 	wfd.write("    };\n\n")
@@ -77,7 +73,7 @@ def print_mod_list():
 
 # generate MME customized modules' own configuration settings in mme.conf
 def print_mod_conf():
-	for i in range(0,18,3):
+	for i in range(0,15,3):
 		if var[i] != -1 and var[i].get() == 1:
 			wfd.write(modules[i]+" :\n")
 		if var[i+1] != -1 and var[i+1].get() == 1:
@@ -109,12 +105,12 @@ Label(master, text="MME base modules").grid(row=0, column=0,sticky=W)
 Label(master, text="            High mobility modules").grid(row=0, column=10, sticky=W)
 Label(master, text="  High security modules ").grid(row=0, column=20, sticky=W)
 
-var = [0,0,-1,0,0,0,0,0,-1,0,-1,-1,0,-1,-1,0,-1,0]
+var = [0,0,-1,0,0,0,0,0,-1,0,-1,-1,0,-1,0]
 
 modules = ["MME_APP", "HMB_MME_APP", "NULL", "NAS", "HMB_NAS", "HS_NAS", "S11_MME", "HMB_S11_MME", "NULL" \
-          ,"S1AP", "NULL", "NULL", "LOCATION", "NULL", "NULL", "S6A", "NULL", "HS_S6A"]
+          ,"S1AP", "NULL", "NULL", "S6A", "NULL", "HS_S6A"]
 
-for i in range(0,18,3):
+for i in range(0,15,3):
 	if modules[i] != "NULL":
 		var[i] = IntVar()
 		Checkbutton(master, text=modules[i]+'.so', variable=var[i]).grid(row=i/3+1, column=0, padx=0, sticky=W)

@@ -109,8 +109,8 @@ int s1ap_mme_cxx::s1ap_mme_decode_initiating (
       break;
 
     default: {
-        OAILOG_ERROR (LOG_S1AP, "Unknown procedure ID (%d) for initiating message\n", (int)initiating_p->procedureCode);
-        AssertFatal (0, "Unknown procedure ID (%d) for initiating message\n", (int)initiating_p->procedureCode);
+        //OAILOG_ERROR (LOG_S1AP, "Unknown procedure ID (%d) for initiating message\n", (int)initiating_p->procedureCode);
+        //AssertFatal (0, "Unknown procedure ID (%d) for initiating message\n", (int)initiating_p->procedureCode);
       }
       break;
   }
@@ -161,19 +161,11 @@ int s1ap_mme_cxx::s1ap_mme_decode_successfull_outcome (
       break;
 
     default: {
-        OAILOG_ERROR (LOG_S1AP, "Unknown procedure ID (%ld) for successfull outcome message\n", successfullOutcome_p->procedureCode);
+        //OAILOG_ERROR (LOG_S1AP, "Unknown procedure ID (%ld) for successfull outcome message\n", successfullOutcome_p->procedureCode);
       }
       break;
   }
 
-//  if (MESSAGES_ID_MAX != message_id) {
-//    message_string_size = strlen (message_string);
-//    message_p = itti_alloc_new_message_sized (TASK_S1AP, message_id, message_string_size + sizeof (IttiMsgText));
-//    message_p->ittiMsg.s1ap_initial_context_setup_log.size = message_string_size;
-//    memcpy (&message_p->ittiMsg.s1ap_initial_context_setup_log.text, message_string, message_string_size);
-//    itti_send_msg_to_task (TASK_UNKNOWN, INSTANCE_DEFAULT, message_p);
-//    free_wrapper ((void**)&message_string);
-//  }
   return ret;
 }
 
@@ -200,7 +192,7 @@ int s1ap_mme_cxx::s1ap_mme_decode_unsuccessfull_outcome (
       break;
 
     default: {
-        OAILOG_ERROR (LOG_S1AP, "Unknown procedure ID (%d) for unsuccessfull outcome message\n", (int)unSuccessfulOutcome_p->procedureCode);
+        //OAILOG_ERROR (LOG_S1AP, "Unknown procedure ID (%d) for unsuccessfull outcome message\n", (int)unSuccessfulOutcome_p->procedureCode);
       }
       break;
   }

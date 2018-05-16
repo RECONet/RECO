@@ -51,12 +51,189 @@
 #include "mme_app_edns_emulation.h"
 #include "mme_app_config.h"
 
-// mme_app_desc_t                          mme_app_desc;
+#undef max
+#undef min
+
+#include <grpc++/grpc++.h>
+
+#include "location.grpc.pb.h"
+#include "conversions.h"
+#include <thread>
+#include "call_gui.h"
+#include <unistd.h>
+#include <string>
+
+
+using grpc::Status;
+using grpc::Channel;
+using grpc::ClientAsyncResponseReader;
+using grpc::ClientContext;
+using grpc::CompletionQueue;
+using location::LocationUpdate;
+using location::Request;
+using location::Reply;
+
 
 extern xmlTextWriterPtr g_xml_text_writer;
 
 
-void     *mme_app_thread (void *args);
+void  *mme_app_thread (void *args);
+
+struct AsyncClientCall {
+    Reply reply;
+    ClientContext context;
+    Status status;
+    std::unique_ptr<ClientAsyncResponseReader<Reply>> response_reader;
+};
+
+struct service_ip_port {
+  char* service_ip;
+  int service_port;
+};
+
+
+
+class MME_Client {
+
+public:
+	MME_Client(std::shared_ptr<grpc::Channel> channel)
+        : stub_(LocationUpdate::NewStub(channel))  { }
+	void Send_request(ue_mm_context_t *const ue_mm_context, char imsi[]) {
+    		
+		Request a;
+		a.set_imsi(imsi);
+		a.set_mcc_digit1((uint32_t)(ue_mm_context->emm_context.originating_tai.mcc_digit1));
+  		a.set_mcc_digit2((uint32_t)(ue_mm_context->emm_context.originating_tai.mcc_digit2));
+		a.set_mcc_digit3((uint32_t)(ue_mm_context->emm_context.originating_tai.mcc_digit3));
+		a.set_mnc_digit1((uint32_t)(ue_mm_context->emm_context.originating_tai.mnc_digit1));
+		a.set_mnc_digit2((uint32_t)(ue_mm_context->emm_context.originating_tai.mnc_digit2));
+		a.set_mnc_digit3((uint32_t)(ue_mm_context->emm_context.originating_tai.mnc_digit3));
+
+		AsyncClientCall *call = new AsyncClientCall;
+		call->response_reader = stub_->AsyncLocation_update(&call->context, a, &cq_);
+		call->response_reader->Finish(&call->reply, &call->status, (void*)call);
+
+    		std::cout << "Call function finished" << std::endl;
+
+        }
+
+	void AsyncCompleteRpc() 
+    	{
+        	void* got_tag;
+        	bool ok = false;
+        	
+        	while (cq_.Next(&got_tag, &ok)) 
+        	{
+            		AsyncClientCall* call = static_cast<AsyncClientCall*>(got_tag);
+            		if (call->status.ok()) {
+            	    		std::cout << "Location update reply received" << std::endl;
+				
+				s6a_update_location_ans_t * ula_pP = new s6a_update_location_ans_t;
+				ula_pP->result.present = call->reply.present();
+				
+				if (call->reply.base() == location::Reply_Base_DIAMETER_SUCCESS) ula_pP->result.choice.base = DIAMETER_SUCCESS;
+				strcpy(ula_pP->imsi, call->reply.imsi().c_str());
+
+				if (call->reply.subscriber_status() == location::Reply_subscriber_status_t_SS_SERVICE_GRANTED) ula_pP->subscription_data.subscriber_status = SS_SERVICE_GRANTED;
+				else if (call->reply.subscriber_status() == location::Reply_subscriber_status_t_SS_OPERATOR_DETERMINED_BARRING) ula_pP->subscription_data.subscriber_status = SS_OPERATOR_DETERMINED_BARRING;
+				else if (call->reply.subscriber_status() == location::Reply_subscriber_status_t_SS_MAX) ula_pP->subscription_data.subscriber_status = SS_MAX;
+
+				ula_pP->subscription_data.access_restriction = call->reply.access_restriction();
+				ula_pP->subscription_data.subscribed_ambr.br_ul = call->reply.subscribed_ambr().br_ul();
+				ula_pP->subscription_data.subscribed_ambr.br_dl = call->reply.subscribed_ambr().br_dl();
+				strcpy(ula_pP->subscription_data.msisdn, call->reply.msisdn().c_str());
+				ula_pP->subscription_data.msisdn_length = call->reply.msisdn_length();
+				ula_pP->subscription_data.rau_tau_timer = call->reply.rau_tau_timer();
+		
+				if (call->reply.access_mode() == location::Reply_access_mode_t_NAM_PACKET_AND_CIRCUIT) ula_pP->subscription_data.access_mode = NAM_PACKET_AND_CIRCUIT;
+				else if (call->reply.access_mode() == location::Reply_access_mode_t_NAM_RESERVED) ula_pP->subscription_data.access_mode = NAM_RESERVED;
+				else if (call->reply.access_mode() == location::Reply_access_mode_t_NAM_ONLY_PACKET) ula_pP->subscription_data.access_mode = NAM_ONLY_PACKET;
+				else if (call->reply.access_mode() == location::Reply_access_mode_t_NAM_MAX) ula_pP->subscription_data.access_mode = NAM_MAX;		
+
+				ula_pP->subscription_data.apn_config_profile.context_identifier = call->reply.context_identifier();
+		
+				if (call->reply.all_apn_conf_ind() == location::Reply_all_apn_conf_ind_t_ALL_APN_CONFIGURATIONS_INCLUDED) ula_pP->subscription_data.apn_config_profile.all_apn_conf_ind = ALL_APN_CONFIGURATIONS_INCLUDED;
+		  		else if (call->reply.all_apn_conf_ind() == location::Reply_all_apn_conf_ind_t_MODIFIED_ADDED_APN_CONFIGURATIONS_INCLUDED) ula_pP->subscription_data.apn_config_profile.all_apn_conf_ind = MODIFIED_ADDED_APN_CONFIGURATIONS_INCLUDED;
+		  		else if (call->reply.all_apn_conf_ind() == location::Reply_all_apn_conf_ind_t_ALL_APN_MAX) ula_pP->subscription_data.apn_config_profile.all_apn_conf_ind = ALL_APN_MAX;
+		
+				ula_pP->subscription_data.apn_config_profile.nb_apns = call->reply.nb_apns();
+				ula_pP->subscription_data.apn_config_profile.apn_configuration[0].context_identifier = call->reply.apn_context_identifier();
+				ula_pP->subscription_data.apn_config_profile.apn_configuration[0].nb_ip_address = call->reply.nb_ip_address();
+		 		memset(ula_pP->subscription_data.apn_config_profile.apn_configuration[0].ip_address, 0, sizeof(ip_address_t));
+
+				if (call->reply.pdn_type() == location::Reply_pdn_type_t_IPv4) ula_pP->subscription_data.apn_config_profile.apn_configuration[0].pdn_type = IPv4;
+		  		else if (call->reply.pdn_type() == location::Reply_pdn_type_t_IPv6) ula_pP->subscription_data.apn_config_profile.apn_configuration[0].pdn_type = IPv6;
+		  		else if (call->reply.pdn_type() == location::Reply_pdn_type_t_IPv4_AND_v6) ula_pP->subscription_data.apn_config_profile.apn_configuration[0].pdn_type = IPv4_AND_v6;
+		  		else if (call->reply.pdn_type() == location::Reply_pdn_type_t_IPv4_OR_v6) ula_pP->subscription_data.apn_config_profile.apn_configuration[0].pdn_type = IPv4_OR_v6;
+		  		else if (call->reply.pdn_type() == location::Reply_pdn_type_t_IP_MAX) ula_pP->subscription_data.apn_config_profile.apn_configuration[0].pdn_type = IP_MAX;
+
+				strcpy(ula_pP->subscription_data.apn_config_profile.apn_configuration[0].service_selection, call->reply.service_selection().c_str());
+				ula_pP->subscription_data.apn_config_profile.apn_configuration[0].service_selection_length = call->reply.service_selection_length();
+				ula_pP->subscription_data.apn_config_profile.apn_configuration[0].subscribed_qos.qci = call->reply.qci();
+				ula_pP->subscription_data.apn_config_profile.apn_configuration[0].subscribed_qos.allocation_retention_priority.priority_level = call->reply.priority_level();
+
+				if (call->reply.pre_emp_vulnerability() == location::Reply_pre_emption_vulnerability_t__PRE_EMPTION_VULNERABILITY_ENABLED) ula_pP->subscription_data.apn_config_profile.apn_configuration[0].subscribed_qos.allocation_retention_priority.pre_emp_vulnerability = (pre_emption_vulnerability_t)PRE_EMPTION_VULNERABILITY_ENABLED;
+				else if (call->reply.pre_emp_vulnerability() == location::Reply_pre_emption_vulnerability_t__PRE_EMPTION_VULNERABILITY_DISABLED) ula_pP->subscription_data.apn_config_profile.apn_configuration[0].subscribed_qos.allocation_retention_priority.pre_emp_vulnerability = (pre_emption_vulnerability_t)PRE_EMPTION_VULNERABILITY_DISABLED;
+				else if (call->reply.pre_emp_vulnerability() == location::Reply_pre_emption_vulnerability_t__PRE_EMPTION_VULNERABILITY_MAX) ula_pP->subscription_data.apn_config_profile.apn_configuration[0].subscribed_qos.allocation_retention_priority.pre_emp_vulnerability = (pre_emption_vulnerability_t)PRE_EMPTION_VULNERABILITY_MAX;
+
+
+				if (call->reply.pre_emp_capability() == location::Reply_pre_emption_capability_t__PRE_EMPTION_CAPABILITY_ENABLED) ula_pP->subscription_data.apn_config_profile.apn_configuration[0].subscribed_qos.allocation_retention_priority.pre_emp_capability = (pre_emption_capability_t)PRE_EMPTION_CAPABILITY_ENABLED;
+				else if (call->reply.pre_emp_capability() == location::Reply_pre_emption_capability_t__PRE_EMPTION_CAPABILITY_DISABLED) ula_pP->subscription_data.apn_config_profile.apn_configuration[0].subscribed_qos.allocation_retention_priority.pre_emp_capability = (pre_emption_capability_t)PRE_EMPTION_CAPABILITY_DISABLED;
+				else if (call->reply.pre_emp_capability() == location::Reply_pre_emption_capability_t__PRE_EMPTION_CAPABILITY_MAX) ula_pP->subscription_data.apn_config_profile.apn_configuration[0].subscribed_qos.allocation_retention_priority.pre_emp_capability = (pre_emption_capability_t)PRE_EMPTION_CAPABILITY_MAX;	
+	
+				ula_pP->subscription_data.apn_config_profile.apn_configuration[0].ambr.br_ul = call->reply.ambr().br_ul();
+				ula_pP->subscription_data.apn_config_profile.apn_configuration[0].ambr.br_dl = call->reply.ambr().br_dl();
+
+				mme_app_handle_s6a_update_location_ans (ula_pP); 			
+			}           		
+ 			else
+                 		std::cout << "RPC failed" << std::endl;
+			
+            		delete call;   
+			
+			break;
+		}
+        }
+
+    
+private:
+	std::unique_ptr<LocationUpdate::Stub> stub_;
+	CompletionQueue cq_;
+
+
+};
+
+std::string service_table_nonsql(int pseudo_user_type, char user_imsi2[]){
+  std::map<char *, int> user_table;
+  std::map<int,service_ip_port> service_table;
+
+  int user_type;
+
+  service_table[1].service_ip="10.0.0.4";
+  service_table[1].service_port=5000;
+  service_table[2].service_ip="10.0.0.4";
+  service_table[2].service_port=5001;
+
+
+  std::map<char*, int>::iterator it;
+  it = user_table.find(user_imsi2);
+  
+  if( it == user_table.end() ){
+    user_table[user_imsi2] = pseudo_user_type;
+    user_type = pseudo_user_type;
+  }
+  else	user_type = it->second;
+  
+  std::map<int, service_ip_port>::iterator it2;
+  it2 = service_table.find(user_type);
+
+  char service_ipadd_port[30];
+  sprintf(service_ipadd_port, "%s:%d", it2->second.service_ip, it2->second.service_port);
+
+  return std::string(service_ipadd_port);
+
+}
+
 
 //------------------------------------------------------------------------------
 void *mme_app_thread (void *args)
@@ -121,7 +298,24 @@ void *mme_app_thread (void *args)
         ue_context_p = mme_ue_context_exists_mme_ue_s1ap_id (&mme_app_desc.mme_ue_contexts, received_message_p->ittiMsg.nas_pdn_config_req.ue_id);
         if (ue_context_p) {
           if (!ue_context_p->is_s1_ue_context_release) {
-            mme_app_send_s6a_update_location_req(ue_context_p);
+		//GUI
+		std::string a = exec("../identifier");
+
+		//GRPC
+		char user_imsi2[16];
+		IMSI_TO_STRING((&ue_context_p->emm_context._imsi), user_imsi2, 16);
+		std::string service_ip_port;
+
+		service_ip_port = service_table_nonsql(std::stoi(a), user_imsi2);
+		auto channel = CreateChannel(service_ip_port.c_str(), grpc::InsecureChannelCredentials());
+  		MME_Client client(channel);
+  		typedef void *(*THREADFUNCPTR)(void *);
+		pthread_t t;
+		pthread_create(&t, NULL, (THREADFUNCPTR)&MME_Client::AsyncCompleteRpc, &client);
+	
+		client.Send_request(ue_context_p, user_imsi2);
+		
+		std::cout << "client call FINISH" << std::endl;
           }
         }
       }
@@ -158,7 +352,7 @@ void *mme_app_thread (void *args)
           MSC_LOG_RX_MESSAGE (MSC_MMEAPP_MME, MSC_S11_MME, NULL, 0, "0 MODIFY_BEARER_RESPONSE local S11 teid " TEID_FMT " IMSI " IMSI_64_FMT " ",
             received_message_p->ittiMsg.s11_modify_bearer_response.teid, ue_context_p->emm_context._imsi64);
         }
-         // TO DO
+
       }
       break;
 
