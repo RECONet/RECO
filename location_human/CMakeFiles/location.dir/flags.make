@@ -6,5 +6,5 @@ CXX_FLAGS =  -w -std=c++11
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/usr/local/include -I/home/wirelab/Downloads/location_human/generated 
+CXX_INCLUDES = -I/usr/local/include -I/home/ryan/RECO/location_human/generated 
 

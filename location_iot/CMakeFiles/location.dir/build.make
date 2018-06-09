@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/wirelab/Downloads/location_iot
+CMAKE_SOURCE_DIR = /home/ryan/RECO/location_iot
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/wirelab/Downloads/location_iot
+CMAKE_BINARY_DIR = /home/ryan/RECO/location_iot
 
 # Include any dependencies generated for this target.
 include CMakeFiles/location.dir/depend.make
@@ -58,9 +58,9 @@ include CMakeFiles/location.dir/progress.make
 include CMakeFiles/location.dir/flags.make
 
 generated/location.pb.h:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/wirelab/Downloads/location_iot/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating generated/location.pb.h, generated/location.pb.cc, generated/location.grpc.pb.h, generated/location.grpc.pb.cc"
-	/usr/local/bin/protoc --proto_path=/home/wirelab/Downloads/location_iot/protos --cpp_out=/home/wirelab/Downloads/location_iot/generated /home/wirelab/Downloads/location_iot/protos/location.proto
-	/usr/local/bin/protoc --proto_path=/home/wirelab/Downloads/location_iot/protos --grpc_out=/home/wirelab/Downloads/location_iot/generated --plugin=protoc-gen-grpc=/usr/local/bin/grpc_cpp_plugin /home/wirelab/Downloads/location_iot/protos/location.proto
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ryan/RECO/location_iot/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating generated/location.pb.h, generated/location.pb.cc, generated/location.grpc.pb.h, generated/location.grpc.pb.cc"
+	/usr/local/bin/protoc --proto_path=/home/ryan/RECO/location_iot/protos --cpp_out=/home/ryan/RECO/location_iot/generated /home/ryan/RECO/location_iot/protos/location.proto
+	/usr/local/bin/protoc --proto_path=/home/ryan/RECO/location_iot/protos --grpc_out=/home/ryan/RECO/location_iot/generated --plugin=protoc-gen-grpc=/usr/local/bin/grpc_cpp_plugin /home/ryan/RECO/location_iot/protos/location.proto
 
 generated/location.pb.cc: generated/location.pb.h
 	@$(CMAKE_COMMAND) -E touch_nocreate generated/location.pb.cc
@@ -73,16 +73,16 @@ generated/location.grpc.pb.cc: generated/location.pb.h
 
 CMakeFiles/location.dir/location.cpp.o: CMakeFiles/location.dir/flags.make
 CMakeFiles/location.dir/location.cpp.o: location.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wirelab/Downloads/location_iot/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/location.dir/location.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/location.dir/location.cpp.o -c /home/wirelab/Downloads/location_iot/location.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ryan/RECO/location_iot/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/location.dir/location.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/location.dir/location.cpp.o -c /home/ryan/RECO/location_iot/location.cpp
 
 CMakeFiles/location.dir/location.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/location.dir/location.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/wirelab/Downloads/location_iot/location.cpp > CMakeFiles/location.dir/location.cpp.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ryan/RECO/location_iot/location.cpp > CMakeFiles/location.dir/location.cpp.i
 
 CMakeFiles/location.dir/location.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/location.dir/location.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wirelab/Downloads/location_iot/location.cpp -o CMakeFiles/location.dir/location.cpp.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ryan/RECO/location_iot/location.cpp -o CMakeFiles/location.dir/location.cpp.s
 
 CMakeFiles/location.dir/location.cpp.o.requires:
 
@@ -97,16 +97,16 @@ CMakeFiles/location.dir/location.cpp.o.provides.build: CMakeFiles/location.dir/l
 
 CMakeFiles/location.dir/generated/location.pb.cc.o: CMakeFiles/location.dir/flags.make
 CMakeFiles/location.dir/generated/location.pb.cc.o: generated/location.pb.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wirelab/Downloads/location_iot/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/location.dir/generated/location.pb.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/location.dir/generated/location.pb.cc.o -c /home/wirelab/Downloads/location_iot/generated/location.pb.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ryan/RECO/location_iot/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/location.dir/generated/location.pb.cc.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/location.dir/generated/location.pb.cc.o -c /home/ryan/RECO/location_iot/generated/location.pb.cc
 
 CMakeFiles/location.dir/generated/location.pb.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/location.dir/generated/location.pb.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/wirelab/Downloads/location_iot/generated/location.pb.cc > CMakeFiles/location.dir/generated/location.pb.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ryan/RECO/location_iot/generated/location.pb.cc > CMakeFiles/location.dir/generated/location.pb.cc.i
 
 CMakeFiles/location.dir/generated/location.pb.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/location.dir/generated/location.pb.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wirelab/Downloads/location_iot/generated/location.pb.cc -o CMakeFiles/location.dir/generated/location.pb.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ryan/RECO/location_iot/generated/location.pb.cc -o CMakeFiles/location.dir/generated/location.pb.cc.s
 
 CMakeFiles/location.dir/generated/location.pb.cc.o.requires:
 
@@ -121,16 +121,16 @@ CMakeFiles/location.dir/generated/location.pb.cc.o.provides.build: CMakeFiles/lo
 
 CMakeFiles/location.dir/generated/location.grpc.pb.cc.o: CMakeFiles/location.dir/flags.make
 CMakeFiles/location.dir/generated/location.grpc.pb.cc.o: generated/location.grpc.pb.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wirelab/Downloads/location_iot/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/location.dir/generated/location.grpc.pb.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/location.dir/generated/location.grpc.pb.cc.o -c /home/wirelab/Downloads/location_iot/generated/location.grpc.pb.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ryan/RECO/location_iot/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/location.dir/generated/location.grpc.pb.cc.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/location.dir/generated/location.grpc.pb.cc.o -c /home/ryan/RECO/location_iot/generated/location.grpc.pb.cc
 
 CMakeFiles/location.dir/generated/location.grpc.pb.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/location.dir/generated/location.grpc.pb.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/wirelab/Downloads/location_iot/generated/location.grpc.pb.cc > CMakeFiles/location.dir/generated/location.grpc.pb.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ryan/RECO/location_iot/generated/location.grpc.pb.cc > CMakeFiles/location.dir/generated/location.grpc.pb.cc.i
 
 CMakeFiles/location.dir/generated/location.grpc.pb.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/location.dir/generated/location.grpc.pb.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wirelab/Downloads/location_iot/generated/location.grpc.pb.cc -o CMakeFiles/location.dir/generated/location.grpc.pb.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ryan/RECO/location_iot/generated/location.grpc.pb.cc -o CMakeFiles/location.dir/generated/location.grpc.pb.cc.s
 
 CMakeFiles/location.dir/generated/location.grpc.pb.cc.o.requires:
 
@@ -158,7 +158,7 @@ location: CMakeFiles/location.dir/generated/location.grpc.pb.cc.o
 location: CMakeFiles/location.dir/build.make
 location: /usr/local/lib/libprotobuf.so
 location: CMakeFiles/location.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/wirelab/Downloads/location_iot/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable location"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ryan/RECO/location_iot/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable location"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/location.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -180,6 +180,6 @@ CMakeFiles/location.dir/depend: generated/location.pb.h
 CMakeFiles/location.dir/depend: generated/location.pb.cc
 CMakeFiles/location.dir/depend: generated/location.grpc.pb.h
 CMakeFiles/location.dir/depend: generated/location.grpc.pb.cc
-	cd /home/wirelab/Downloads/location_iot && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/wirelab/Downloads/location_iot /home/wirelab/Downloads/location_iot /home/wirelab/Downloads/location_iot /home/wirelab/Downloads/location_iot /home/wirelab/Downloads/location_iot/CMakeFiles/location.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/ryan/RECO/location_iot && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ryan/RECO/location_iot /home/ryan/RECO/location_iot /home/ryan/RECO/location_iot /home/ryan/RECO/location_iot /home/ryan/RECO/location_iot/CMakeFiles/location.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/location.dir/depend
 

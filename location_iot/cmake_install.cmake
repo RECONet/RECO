@@ -1,4 +1,4 @@
-# Install script for directory: /home/wirelab/Downloads/location_iot
+# Install script for directory: /home/ryan/RECO/location_iot
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/wirelab/Downloads/location_iot/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/ryan/RECO/location_iot/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

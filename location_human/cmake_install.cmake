@@ -1,4 +1,4 @@
-# Install script for directory: /home/wirelab/Downloads/location_human
+# Install script for directory: /home/ryan/RECO/location_human
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/wirelab/Downloads/location_human/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/ryan/RECO/location_human/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
